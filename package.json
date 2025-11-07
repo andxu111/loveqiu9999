@@ -1,0 +1,29 @@
+{
+  "name": "data-visualization-project",
+  "version": "1.0.0",
+  "description": "交互式数据可视化作业展示",
+  "main": "index.html",
+  "scripts": {
+    "dev": "python -m http.server 8080",
+    "serve": "npx serve .",
+    "build": "echo 'No build process needed for static site'"
+  },
+  "keywords": [
+    "data-visualization",
+    "chart.js",
+    "plotly.js",
+    "interactive-charts"
+  ],
+  "author": "徐秋莲",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/loveqiu9999/data-visualization.git"
+  },
+  "devDependencies": {
+    "serve": "^14.2.1"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

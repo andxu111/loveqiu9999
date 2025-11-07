@@ -1,0 +1,1788 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据可视化作业 - 10个图表展示</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        
+        .chart-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .chart-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+        
+        .chart-title {
+            font-size: 1.4em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #4a5568;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 350px;
+            width: 100%;
+        }
+        
+        .chart-container-large {
+            position: relative;
+            height: 450px;
+            width: 100%;
+        }
+        
+        .data-editor {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .data-editor h4 {
+            margin: 0 0 10px 0;
+            color: #4a5568;
+            font-size: 1.1em;
+        }
+        
+        .data-inputs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .data-input {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .data-input label {
+            font-size: 0.9em;
+            margin-bottom: 5px;
+            color: #718096;
+        }
+        
+        .data-input input {
+            padding: 8px;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        
+        .data-input input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .update-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background 0.3s ease;
+        }
+        
+        .update-btn:hover {
+            background: #5a67d8;
+        }
+        
+        .chart-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .chart-toggle-btn {
+            background: #e2e8f0;
+            color: #4a5568;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+        
+        .chart-toggle-btn:hover {
+            background: #cbd5e0;
+        }
+        
+        .chart-toggle-btn.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .navigation {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+        
+        @media (max-width: 768px) {
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-card {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 数据可视化作业展示</h1>
+            <p>10个不同类型的图表可视化 - 基于Matplotlib练习作业转换</p>
+        </div>
+        
+        <div class="chart-grid">
+            <!-- 题目1：单组柱形图 -->
+            <div class="chart-card">
+                <div class="chart-title">1. 单组柱形图</div>
+                <div class="chart-container">
+                    <canvas id="chart1"></canvas>
+                </div>
+                <div class="data-editor">
+                    <h4>编辑标签和坐标轴</h4>
+                    <div class="data-inputs">
+                        <div class="data-input">
+                            <label>图表标题</label>
+                            <input type="text" id="chart1-title" value="销售额（万元）">
+                        </div>
+                        <div class="data-input">
+                            <label>Y轴标题</label>
+                            <input type="text" id="chart1-yaxis" value="销售额（万元）">
+                        </div>
+                    </div>
+                    <h4>编辑标签名称</h4>
+                    <div class="data-inputs">
+                        <div class="data-input">
+                            <label>标签1</label>
+                            <input type="text" id="chart1-label1" value="电子产品">
+                        </div>
+                        <div class="data-input">
+                            <label>标签2</label>
+                            <input type="text" id="chart1-label2" value="服装鞋帽">
+                        </div>
+                        <div class="data-input">
+                            <label>标签3</label>
+                            <input type="text" id="chart1-label3" value="家居百货">
+                        </div>
+                        <div class="data-input">
+                            <label>标签4</label>
+                            <input type="text" id="chart1-label4" value="美妆个护">
+                        </div>
+                        <div class="data-input">
+                            <label>标签5</label>
+                            <input type="text" id="chart1-label5" value="食品生鲜">
+                        </div>
+                    </div>
+                    <h4>编辑数据</h4>
+                    <div class="data-inputs">
+                        <div class="data-input">
+                            <label>数据1</label>
+                            <input type="number" id="chart1-data1" value="550" min="0">
+                        </div>
+                        <div class="data-input">
+                            <label>数据2</label>
+                            <input type="number" id="chart1-data2" value="420" min="0">
+                        </div>
+                        <div class="data-input">
+                            <label>数据3</label>
+                            <input type="number" id="chart1-data3" value="280" min="0">
+                        </div>
+                        <div class="data-input">
+                            <label>数据4</label>
+                            <input type="number" id="chart1-data4" value="390" min="0">
+                        </div>
+                        <div class="data-input">
+                            <label>数据5</label>
+                            <input type="number" id="chart1-data5" value="610" min="0">
+                        </div>
+                    </div>
+                    <button class="update-btn" onclick="updateChart1()">更新图表</button>
+                </div>
+            </div>
+            
+            <!-- 题目2：多组条形图 -->
+            <div class="chart-card">
+                <div class="chart-title">2. 多组条形图</div>
+                <div class="chart-container">
+                    <canvas id="chart2"></canvas>
+                </div>
+                <div class="data-editor">
+                    <h4>编辑坐标轴标题</h4>
+                    <div class="data-inputs">
+                        <div class="data-input">
+                            <label>X轴标题</label>
+                            <input type="text" id="chart2-xaxis" value="销售额（万元）">
+                        </div>
+                        <div class="data-input">
+                            <label>数据集1标题</label>
+                            <input type="text" id="chart2-dataset1" value="第一季度">
+                        </div>
+                        <div class="data-input">
+                            <label>数据集2标题</label>
+                            <input type="text" id="chart2-dataset2" value="第二季度">
+                        </div>
+                    </div>
+                    <h4>编辑标签名称</h4>
+                    <div class="data-inputs">
+                        <div class="data-input">
+                            <label>标签1</label>
+                            <input type="text" id="chart2-label1" value="北京">
+                        </div>
+                        <div class="data-input">
+                            <label>标签2</label>
+                            <input type="text" id="chart2-label2" value="上海">
+                        </div>
+                        <div class="data-input">
+                            <label>标签3</label>
+                            <input type="text" id="chart2-label3" value="广州">
+                        </div>
+                        <div class="data-input">
+                            <label>标签4</label>
+                            <input type="text" id="chart2-label4" value="深圳">
+                        </div>
+                    </div>
+                    <h4>编辑数据 - 数据集1</h4>
+                    <div class="data-inputs">
+                        <div class="data-input">
+                            <label>数据1</label>
+                            <input type="number" id="chart2-q1-data1" value="12000" min="0">
+                        </div>
+                        <div class="data-input">
+                            <label>数据2</label>
+                            <input type="number" id="chart2-q1-data2" value="11500" min="0">
+                        </div>
+                        <div class="data-input">
+                            <label>数据3</label>
+                            <input type="number" id="chart2-q1-data3" value="9800" min="0">
+                        </div>
+                        <div class="data-input">
+                            <label>数据4</label>
+                            <input type="number" id="chart2-q1-data4" value="10500" min="0">
+                        </div>
+                    </div>
+                    <h4>编辑数据 - 数据集2</h4>
+                    <div class="data-inputs">
+                        <div class="data-input">
+                            <label>数据1</label>
+                            <input type="number" id="chart2-q2-data1" value="13500" min="0">
+                        </div>
+                        <div class="data-input">
+                            <label>数据2</label>
+                            <input type="number" id="chart2-q2-data2" value="12800" min="0">
+                        </div>
+                        <div class="data-input">
+                            <label>数据3</label>
+                            <input type="number" id="chart2-q2-data3" value="10900" min="0">
+                        </div>
+                        <div class="data-input">
+                            <label>数据4</label>
+                            <input type="number" id="chart2-q2-data4" value="11900" min="0">
+                        </div>
+                    </div>
+                    <button class="update-btn" onclick="updateChart2()">更新图表</button>
+                </div>
+            </div>
+            
+            <!-- 题目3：箱线图 -->
+            <div class="chart-card">
+                <div class="chart-title">3. 箱线图</div>
+                <div class="chart-container-large" id="chart3"></div>
+                <div class="data-editor">
+                    <h4>编辑数据 - 工艺A</h4>
+                    <div class="data-inputs">
+                        <div class="data-input">
+                            <label>最小值</label>
+                            <input type="number" id="chart3-a-min" value="95" min="0" step="0.1">
+                        </div>
+                        <div class="data-input">
+                            <label>最大值</label>
+                            <input type="number" id="chart3-a-max" value="105" min="0" step="0.1">
+                        </div>
+                    </div>
+                    <h4>编辑数据 - 工艺B</h4>
+                    <div class="data-inputs">
+                        <div class="data-input">
+                            <label>最小值</label>
+                            <input type="number" id="chart3-b-min" value="102" min="0" step="0.1">
+                        </div>
+                        <div class="data-input">
+                            <label>最大值</label>
+                            <input type="number" id="chart3-b-max" value="108" min="0" step="0.1">
+                        </div>
+                    </div>
+                    <h4>编辑数据 - 工艺C</h4>
+                    <div class="data-inputs">
+                        <div class="data-input">
+                            <label>最小值</label>
+                            <input type="number" id="chart3-c-min" value="87" min="0" step="0.1">
+                        </div>
+                        <div class="data-input">
+                            <label>最大值</label>
+                            <input type="number" id="chart3-c-max" value="103" min="0" step="0.1">
+                        </div>
+                    </div>
+                    <button class="update-btn" onclick="updateChart3()">更新图表</button>
+                </div>
+            </div>
+            
+            <!-- 题目4：折线图 -->
+            <div class="chart-card">
+                <div class="chart-title">4. 折线图</div>
+                <div class="chart-container">
+                    <canvas id="chart4"></canvas>
+                </div>
+                <div class="data-editor">
+                    <h4>编辑坐标轴标题</h4>
+                    <div class="data-inputs">
+                        <div class="data-input">
+                            <label>X轴标题</label>
+                            <input type="text" id="chart4-xaxis" value="年份">
+                        </div>
+                        <div class="data-input">
+                            <label>Y轴标题</label>
+                            <input type="text" id="chart4-yaxis" value="金额（亿元）">
+                        </div>
+                        <div class="data-input">
+                            <label>数据集1标题</label>
+                            <input type="text" id="chart4-dataset1" value="营收">
+                        </div>
+                        <div class="data-input">
+                            <label>数据集2标题</label>
+                            <input type="text" id="chart4-dataset2" value="利润">
+                        </div>
+                    </div>
+                    <h4>编辑标签名称</h4>
+                    <div class="data-inputs">
+                        <div class="data-input">
+                            <label>标签1</label>
+                            <input type="text" id="chart4-label1" value="2019">
+                        </div>
+                        <div class="data-input">
+                            <label>标签2</label>
+                            <input type="text" id="chart4-label2" value="2020">
+                        </div>
+                        <div class="data-input">
+                            <label>标签3</label>
+                            <input type="text" id="chart4-label3" value="2021">
+                        </div>
+                        <div class="data-input">
+                            <label>标签4</label>
+                            <input type="text" id="chart4-label4" value="2022">
+                        </div>
+                        <div class="data-input">
+                            <label>标签5</label>
+                            <input type="text" id="chart4-label5" value="2023">
+                        </div>
+                        <div class="data-input">
+                            <label>标签6</label>
+                            <input type="text" id="chart4-label6" value="2024">
+                        </div>
+                        <div class="data-input">
+                            <label>标签7</label>
+                            <input type="text" id="chart4-label7" value="2025">
+                        </div>
+                    </div>
+                    <h4>编辑数据 - 数据集1</h4>
+                    <div class="data-inputs">
+                        <div class="data-input">
+                            <label>数据1</label>
+                            <input type="number" id="chart4-revenue-2019" value="2.5" min="0" step="0.1">
+                        </div>
+                        <div class="data-input">
+                            <label>数据2</label>
+                            <input type="number" id="chart4-revenue-2020" value="3.1" min="0" step="0.1">
+                        </div>
+                        <div class="data-input">
+                            <label>数据3</label>
+                            <input type="number" id="chart4-revenue-2021" value="4.0" min="0" step="0.1">
+                        </div>
+                        <div class="data-input">
+                            <label>数据4</label>
+                            <input type="number" id="chart4-revenue-2022" value="5.2" min="0" step="0.1">
+                        </div>
+                        <div class="data-input">
+                            <label>数据5</label>
+                            <input type="number" id="chart4-revenue-2023" value="6.5" min="0" step="0.1">
+                        </div>
+                        <div class="data-input">
+                            <label>数据6</label>
+                            <input type="number" id="chart4-revenue-2024" value="7.8" min="0" step="0.1">
+                        </div>
+                        <div class="data-input">
+                            <label>数据7</label>
+                            <input type="number" id="chart4-revenue-2025" value="8.5" min="0" step="0.1">
+                        </div>
+                    </div>
+                    <h4>编辑数据 - 数据集2</h4>
+                    <div class="data-inputs">
+                        <div class="data-input">
+                            <label>数据1</label>
+                            <input type="number" id="chart4-profit-2019" value="0.5" min="0" step="0.1">
+                        </div>
+                        <div class="data-input">
+                            <label>数据2</label>
+                            <input type="number" id="chart4-profit-2020" value="0.7" min="0" step="0.1">
+                        </div>
+                        <div class="data-input">
+                            <label>数据3</label>
+                            <input type="number" id="chart4-profit-2021" value="0.9" min="0" step="0.1">
+                        </div>
+                        <div class="data-input">
+                            <label>数据4</label>
+                            <input type="number" id="chart4-profit-2022" value="1.3" min="0" step="0.1">
+                        </div>
+                        <div class="data-input">
+                            <label>数据5</label>
+                            <input type="number" id="chart4-profit-2023" value="1.8" min="0" step="0.1">
+                        </div>
+                        <div class="data-input">
+                            <label>数据6</label>
+                            <input type="number" id="chart4-profit-2024" value="2.2" min="0" step="0.1">
+                        </div>
+                        <div class="data-input">
+                            <label>数据7</label>
+                            <input type="number" id="chart4-profit-2025" value="2.5" min="0" step="0.1">
+                        </div>
+                    </div>
+                    <button class="update-btn" onclick="updateChart4()">更新图表</button>
+                </div>
+            </div>
+            
+            <!-- 题目5：直方图 -->
+            <div class="chart-card">
+                <div class="chart-title">5. 直方图</div>
+                <div class="chart-container">
+                    <canvas id="chart5"></canvas>
+                </div>
+                <div class="data-editor">
+                    <h4>编辑坐标轴标题</h4>
+                    <div class="data-inputs">
+                        <div class="data-input">
+                            <label>X轴标题</label>
+                            <input type="text" id="chart5-xaxis" value="分数区间">
+                        </div>
+                        <div class="data-input">
+                            <label>Y轴标题</label>
+                            <input type="text" id="chart5-yaxis" value="频数">
+                        </div>
+                        <div class="data-input">
+                            <label>数据集标题</label>
+                            <input type="text" id="chart5-dataset" value="频数">
+                        </div>
+                    </div>
+                    <h4>编辑标签名称</h4>
+                    <div class="data-inputs">
+                        <div class="data-input">
+                            <label>标签1</label>
+                            <input type="text" id="chart5-label1" value="40-46">
+                        </div>
+                        <div class="data-input">
+                            <label>标签2</label>
+                            <input type="text" id="chart5-label2" value="46-52">
+                        </div>
+                        <div class="data-input">
+                            <label>标签3</label>
+                            <input type="text" id="chart5-label3" value="52-58">
+                        </div>
+                        <div class="data-input">
+                            <label>标签4</label>
+                            <input type="text" id="chart5-label4" value="58-64">
+                        </div>
+                        <div class="data-input">
+                            <label>标签5</label>
+                            <input type="text" id="chart5-label5" value="64-70">
+                        </div>
+                        <div class="data-input">
+                            <label>标签6</label>
+                            <input type="text" id="chart5-label6" value="70-76">
+                        </div>
+                        <div class="data-input">
+                            <label>标签7</label>
+                            <input type="text" id="chart5-label7" value="76-82">
+                        </div>
+                        <div class="data-input">
+                            <label>标签8</label>
+                            <input type="text" id="chart5-label8" value="82-88">
+                        </div>
+                        <div class="data-input">
+                            <label>标签9</label>
+                            <input type="text" id="chart5-label9" value="88-94">
+                        </div>
+                        <div class="data-input">
+                            <label>标签10</label>
+                            <input type="text" id="chart5-label10" value="94-100">
+                        </div>
+                    </div>
+                    <h4>编辑频数数据</h4>
+                    <div class="data-inputs">
+                        <div class="data-input">
+                            <label>数据1</label>
+                            <input type="number" id="chart5-data1" value="3" min="0">
+                        </div>
+                        <div class="data-input">
+                            <label>数据2</label>
+                            <input type="number" id="chart5-data2" value="5" min="0">
+                        </div>
+                        <div class="data-input">
+                            <label>数据3</label>
+                            <input type="number" id="chart5-data3" value="8" min="0">
+                        </div>
+                        <div class="data-input">
+                            <label>数据4</label>
+                            <input type="number" id="chart5-data4" value="12" min="0">
+                        </div>
+                        <div class="data-input">
+                            <label>数据5</label>
+                            <input type="number" id="chart5-data5" value="10" min="0">
+                        </div>
+                        <div class="data-input">
+                            <label>数据6</label>
+                            <input type="number" id="chart5-data6" value="7" min="0">
+                        </div>
+                        <div class="data-input">
+                            <label>数据7</label>
+                            <input type="number" id="chart5-data7" value="4" min="0">
+                        </div>
+                        <div class="data-input">
+                            <label>数据8</label>
+                            <input type="number" id="chart5-data8" value="2" min="0">
+                        </div>
+                        <div class="data-input">
+                            <label>数据9</label>
+                            <input type="number" id="chart5-data9" value="1" min="0">
+                        </div>
+                        <div class="data-input">
+                            <label>数据10</label>
+                            <input type="number" id="chart5-data10" value="0" min="0">
+                        </div>
+                    </div>
+                    <button class="update-btn" onclick="updateChart5()">更新图表</button>
+                </div>
+            </div>
+            
+            <!-- 题目6：饼图/环形图 -->
+            <div class="chart-card">
+                <div class="chart-title">6. 饼图/环形图</div>
+                <div class="chart-container">
+                    <canvas id="chart6"></canvas>
+                </div>
+                <div class="chart-controls">
+                    <button class="chart-toggle-btn active" onclick="toggleChart6('pie')">饼图</button>
+                    <button class="chart-toggle-btn" onclick="toggleChart6('doughnut')">环形图</button>
+                </div>
+                <div class="data-editor">
+                    <h4>编辑标签名称</h4>
+                    <div class="data-inputs">
+                        <div class="data-input">
+                            <label>标签1</label>
+                            <input type="text" id="chart6-label1" value="后端开发">
+                        </div>
+                        <div class="data-input">
+                            <label>标签2</label>
+                            <input type="text" id="chart6-label2" value="前端开发">
+                        </div>
+                        <div class="data-input">
+                            <label>标签3</label>
+                            <input type="text" id="chart6-label3" value="UI/UX设计">
+                        </div>
+                        <div class="data-input">
+                            <label>标签4</label>
+                            <input type="text" id="chart6-label4" value="软件测试">
+                        </div>
+                    </div>
+                    <h4>编辑人员分布</h4>
+                    <div class="data-inputs">
+                        <div class="data-input">
+                            <label>数据1</label>
+                            <input type="number" id="chart6-data1" value="15" min="0">
+                        </div>
+                        <div class="data-input">
+                            <label>数据2</label>
+                            <input type="number" id="chart6-data2" value="12" min="0">
+                        </div>
+                        <div class="data-input">
+                            <label>数据3</label>
+                            <input type="number" id="chart6-data3" value="5" min="0">
+                        </div>
+                        <div class="data-input">
+                            <label>数据4</label>
+                            <input type="number" id="chart6-data4" value="8" min="0">
+                        </div>
+                    </div>
+                    <button class="update-btn" onclick="updateChart6()">更新图表</button>
+                </div>
+            </div>
+            
+            <!-- 题目7：气泡图 -->
+            <div class="chart-card">
+                <div class="chart-title">7. 气泡图</div>
+                <div class="chart-container">
+                    <canvas id="chart7"></canvas>
+                </div>
+                <div class="data-editor">
+                    <h4>编辑A市数据</h4>
+                    <div class="data-inputs">
+                        <div class="data-input">
+                            <label>X坐标</label>
+                            <input type="number" id="chart7-a-x" value="300" min="0">
+                        </div>
+                        <div class="data-input">
+                            <label>Y坐标</label>
+                            <input type="number" id="chart7-a-y" value="150" min="0">
+                        </div>
+                        <div class="data-input">
+                            <label>气泡大小</label>
+                            <input type="number" id="chart7-a-r" value="13" min="1">
+                        </div>
+                    </div>
+                    <h4>编辑B市数据</h4>
+                    <div class="data-inputs">
+                        <div class="data-input">
+                            <label>X坐标</label>
+                            <input type="number" id="chart7-b-x" value="1500" min="0">
+                        </div>
+                        <div class="data-input">
+                            <label>Y坐标</label>
+                            <input type="number" id="chart7-b-y" value="700" min="0">
+                        </div>
+                        <div class="data-input">
+                            <label>气泡大小</label>
+                            <input type="number" id="chart7-b-r" value="18" min="1">
+                        </div>
+                    </div>
+                    <h4>编辑C市数据</h4>
+                    <div class="data-inputs">
+                        <div class="data-input">
+                            <label>X坐标</label>
+                            <input type="number" id="chart7-c-x" value="800" min="0">
+                        </div>
+                        <div class="data-input">
+                            <label>Y坐标</label>
+                            <input type="number" id="chart7-c-y" value="350" min="0">
+                        </div>
+                        <div class="data-input">
+                            <label>气泡大小</label>
+                            <input type="number" id="chart7-c-r" value="16" min="1">
+                        </div>
+                    </div>
+                    <button class="update-btn" onclick="updateChart7()">更新图表</button>
+                </div>
+            </div>
+            
+            <!-- 题目8：堆积面积图 -->
+            <div class="chart-card">
+                <div class="chart-title">8. 堆积面积图</div>
+                <div class="chart-container">
+                    <canvas id="chart8"></canvas>
+                </div>
+                <div class="data-editor">
+                    <h4>编辑自然流量数据</h4>
+                    <div class="data-inputs">
+                        <div class="data-input">
+                            <label>1月</label>
+                            <input type="number" id="chart8-natural-1" value="10" min="0">
+                        </div>
+                        <div class="data-input">
+                            <label>2月</label>
+                            <input type="number" id="chart8-natural-2" value="12" min="0">
+                        </div>
+                        <div class="data-input">
+                            <label>3月</label>
+                            <input type="number" id="chart8-natural-3" value="15" min="0">
+                        </div>
+                        <div class="data-input">
+                            <label>4月</label>
+                            <input type="number" id="chart8-natural-4" value="18" min="0">
+                        </div>
+                        <div class="data-input">
+                            <label>5月</label>
+                            <input type="number" id="chart8-natural-5" value="20" min="0">
+                        </div>
+                        <div class="data-input">
+                            <label>6月</label>
+                            <input type="number" id="chart8-natural-6" value="22" min="0">
+                        </div>
+                    </div>
+                    <h4>编辑广告投放数据</h4>
+                    <div class="data-inputs">
+                        <div class="data-input">
+                            <label>1月</label>
+                            <input type="number" id="chart8-ad-1" value="5" min="0">
+                        </div>
+                        <div class="data-input">
+                            <label>2月</label>
+                            <input type="number" id="chart8-ad-2" value="8" min="0">
+                        </div>
+                        <div class="data-input">
+                            <label>3月</label>
+                            <input type="number" id="chart8-ad-3" value="10" min="0">
+                        </div>
+                        <div class="data-input">
+                            <label>4月</label>
+                            <input type="number" id="chart8-ad-4" value="9" min="0">
+                        </div>
+                        <div class="data-input">
+                            <label>5月</label>
+                            <input type="number" id="chart8-ad-5" value="11" min="0">
+                        </div>
+                        <div class="data-input">
+                            <label>6月</label>
+                            <input type="number" id="chart8-ad-6" value="13" min="0">
+                        </div>
+                    </div>
+                    <button class="update-btn" onclick="updateChart8()">更新图表</button>
+                </div>
+            </div>
+            
+            <!-- 题目9：误差棒图 -->
+            <div class="chart-card">
+                <div class="chart-title">9. 误差棒图</div>
+                <div class="chart-container" id="chart9"></div>
+                <div class="data-editor">
+                    <h4>编辑平均反应强度</h4>
+                    <div class="data-inputs">
+                        <div class="data-input">
+                            <label>1小时</label>
+                            <input type="number" id="chart9-mean-1" value="15" min="0" step="0.1">
+                        </div>
+                        <div class="data-input">
+                            <label>2小时</label>
+                            <input type="number" id="chart9-mean-2" value="22" min="0" step="0.1">
+                        </div>
+                        <div class="data-input">
+                            <label>4小时</label>
+                            <input type="number" id="chart9-mean-3" value="35" min="0" step="0.1">
+                        </div>
+                        <div class="data-input">
+                            <label>8小时</label>
+                            <input type="number" id="chart9-mean-4" value="48" min="0" step="0.1">
+                        </div>
+                        <div class="data-input">
+                            <label>12小时</label>
+                            <input type="number" id="chart9-mean-5" value="55" min="0" step="0.1">
+                        </div>
+                    </div>
+                    <h4>编辑误差范围</h4>
+                    <div class="data-inputs">
+                        <div class="data-input">
+                            <label>1小时误差</label>
+                            <input type="number" id="chart9-error-1" value="1.5" min="0" step="0.1">
+                        </div>
+                        <div class="data-input">
+                            <label>2小时误差</label>
+                            <input type="number" id="chart9-error-2" value="2.0" min="0" step="0.1">
+                        </div>
+                        <div class="data-input">
+                            <label>4小时误差</label>
+                            <input type="number" id="chart9-error-3" value="3.5" min="0" step="0.1">
+                        </div>
+                        <div class="data-input">
+                            <label>8小时误差</label>
+                            <input type="number" id="chart9-error-4" value="4.0" min="0" step="0.1">
+                        </div>
+                        <div class="data-input">
+                            <label>12小时误差</label>
+                            <input type="number" id="chart9-error-5" value="5.5" min="0" step="0.1">
+                        </div>
+                    </div>
+                    <button class="update-btn" onclick="updateChart9()">更新图表</button>
+                </div>
+            </div>
+            
+            <!-- 题目10：雷达图 -->
+            <div class="chart-card">
+                <div class="chart-title">10. 雷达图</div>
+                <div class="chart-container">
+                    <canvas id="chart10"></canvas>
+                </div>
+                <div class="data-editor">
+                    <h4>编辑产品A数据</h4>
+                    <div class="data-inputs">
+                        <div class="data-input">
+                            <label>性能</label>
+                            <input type="number" id="chart10-a-1" value="9.0" min="0" max="10" step="0.1">
+                        </div>
+                        <div class="data-input">
+                            <label>设计</label>
+                            <input type="number" id="chart10-a-2" value="7.5" min="0" max="10" step="0.1">
+                        </div>
+                        <div class="data-input">
+                            <label>续航</label>
+                            <input type="number" id="chart10-a-3" value="8.0" min="0" max="10" step="0.1">
+                        </div>
+                        <div class="data-input">
+                            <label>价格</label>
+                            <input type="number" id="chart10-a-4" value="6.5" min="0" max="10" step="0.1">
+                        </div>
+                        <div class="data-input">
+                            <label>服务</label>
+                            <input type="number" id="chart10-a-5" value="8.0" min="0" max="10" step="0.1">
+                        </div>
+                    </div>
+                    <h4>编辑产品B数据</h4>
+                    <div class="data-inputs">
+                        <div class="data-input">
+                            <label>性能</label>
+                            <input type="number" id="chart10-b-1" value="7.0" min="0" max="10" step="0.1">
+                        </div>
+                        <div class="data-input">
+                            <label>设计</label>
+                            <input type="number" id="chart10-b-2" value="8.5" min="0" max="10" step="0.1">
+                        </div>
+                        <div class="data-input">
+                            <label>续航</label>
+                            <input type="number" id="chart10-b-3" value="7.5" min="0" max="10" step="0.1">
+                        </div>
+                        <div class="data-input">
+                            <label>价格</label>
+                            <input type="number" id="chart10-b-4" value="8.0" min="0" max="10" step="0.1">
+                        </div>
+                        <div class="data-input">
+                            <label>服务</label>
+                            <input type="number" id="chart10-b-5" value="9.0" min="0" max="10" step="0.1">
+                        </div>
+                    </div>
+                    <button class="update-btn" onclick="updateChart10()">更新图表</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="navigation">
+            <button class="nav-btn" onclick="scrollToTop()">回到顶部</button>
+            <button class="nav-btn" onclick="toggleDarkMode()">切换主题</button>
+        </div>
+    </div>
+
+    <script>
+        // 数据可视化配置
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('开始初始化图表...');
+            
+            try {
+                // 1. 单组柱形图
+                initChart1();
+                
+                // 2. 多组条形图
+                initChart2();
+                
+                // 3. 箱线图 - 使用plotly.js
+                initChart3();
+                
+                // 4. 折线图
+                initChart4();
+                
+                // 5. 直方图
+                initChart5();
+                
+                // 6. 饼图
+                initChart6();
+                
+                // 7. 气泡图
+                initChart7();
+                
+                // 8. 堆积面积图
+                initChart8();
+                
+                // 9. 误差棒图
+                initChart9();
+                
+                // 10. 雷达图
+                initChart10();
+                
+                console.log('所有图表初始化完成');
+            } catch (error) {
+                console.error('图表初始化错误:', error);
+            }
+        });
+
+        // 题目1：单组柱形图
+        let chart1;
+        function initChart1() {
+            const ctx = document.getElementById('chart1');
+            if (!ctx) return;
+            
+            chart1 = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['电子产品', '服装鞋帽', '家居百货', '美妆个护', '食品生鲜'],
+                    datasets: [{
+                        label: '销售额（万元）',
+                        data: [550, 420, 280, 390, 610],
+                        backgroundColor: 'rgba(135, 206, 235, 0.8)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            title: {
+                                display: true,
+                                text: '销售额（万元）'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateChart1() {
+            if (!chart1) return;
+            
+            // 更新标签
+            const newLabels = [
+                document.getElementById('chart1-label1').value,
+                document.getElementById('chart1-label2').value,
+                document.getElementById('chart1-label3').value,
+                document.getElementById('chart1-label4').value,
+                document.getElementById('chart1-label5').value
+            ];
+            
+            // 更新数据
+            const newData = [
+                parseInt(document.getElementById('chart1-data1').value),
+                parseInt(document.getElementById('chart1-data2').value),
+                parseInt(document.getElementById('chart1-data3').value),
+                parseInt(document.getElementById('chart1-data4').value),
+                parseInt(document.getElementById('chart1-data5').value)
+            ];
+            
+            // 更新图表标题和Y轴标题
+            const chartTitle = document.getElementById('chart1-title').value;
+            const yAxisTitle = document.getElementById('chart1-yaxis').value;
+            
+            chart1.data.labels = newLabels;
+            chart1.data.datasets[0].data = newData;
+            chart1.data.datasets[0].label = chartTitle;
+            chart1.options.scales.y.title.text = yAxisTitle;
+            
+            chart1.update();
+        }
+
+        // 题目2：多组条形图
+        let chart2;
+        function initChart2() {
+            const ctx = document.getElementById('chart2');
+            if (!ctx) return;
+            
+            chart2 = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['北京', '上海', '广州', '深圳'],
+                    datasets: [
+                        {
+                            label: '第一季度',
+                            data: [12000, 11500, 9800, 10500],
+                            backgroundColor: 'rgba(240, 128, 128, 0.8)'
+                        },
+                        {
+                            label: '第二季度',
+                            data: [13500, 12800, 10900, 11900],
+                            backgroundColor: 'rgba(144, 238, 144, 0.8)'
+                        }
+                    ]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: '销售额（万元）'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateChart2() {
+            if (!chart2) return;
+            
+            // 更新标签
+            const newLabels = [
+                document.getElementById('chart2-label1').value,
+                document.getElementById('chart2-label2').value,
+                document.getElementById('chart2-label3').value,
+                document.getElementById('chart2-label4').value
+            ];
+            
+            // 更新数据
+            const q1Data = [
+                parseInt(document.getElementById('chart2-q1-data1').value),
+                parseInt(document.getElementById('chart2-q1-data2').value),
+                parseInt(document.getElementById('chart2-q1-data3').value),
+                parseInt(document.getElementById('chart2-q1-data4').value)
+            ];
+            
+            const q2Data = [
+                parseInt(document.getElementById('chart2-q2-data1').value),
+                parseInt(document.getElementById('chart2-q2-data2').value),
+                parseInt(document.getElementById('chart2-q2-data3').value),
+                parseInt(document.getElementById('chart2-q2-data4').value)
+            ];
+            
+            // 更新坐标轴标题和数据集标题
+            const xAxisTitle = document.getElementById('chart2-xaxis').value;
+            const dataset1Title = document.getElementById('chart2-dataset1').value;
+            const dataset2Title = document.getElementById('chart2-dataset2').value;
+            
+            chart2.data.labels = newLabels;
+            chart2.data.datasets[0].data = q1Data;
+            chart2.data.datasets[1].data = q2Data;
+            chart2.data.datasets[0].label = dataset1Title;
+            chart2.data.datasets[1].label = dataset2Title;
+            chart2.options.scales.x.title.text = xAxisTitle;
+            
+            chart2.update();
+        }
+
+        // 题目3：箱线图初始化函数
+        function initChart3() {
+            const container = document.getElementById('chart3');
+            if (!container) return;
+            
+            // 生成模拟数据
+            const data_a = Array.from({length: 50}, () => Math.random() * 10 + 95);
+            const data_b = Array.from({length: 50}, () => Math.random() * 6 + 102);
+            const data_c = Array.from({length: 48}, () => Math.random() * 16 + 87).concat([130, 60]);
+            
+            const trace1 = {
+                y: data_a,
+                name: '工艺A',
+                type: 'box',
+                marker: { color: 'rgb(173, 216, 230)' }
+            };
+            
+            const trace2 = {
+                y: data_b,
+                name: '工艺B',
+                type: 'box',
+                marker: { color: 'rgb(144, 238, 144)' }
+            };
+            
+            const trace3 = {
+                y: data_c,
+                name: '工艺C',
+                type: 'box',
+                marker: { color: 'rgb(240, 128, 128)' }
+            };
+            
+            const layout = {
+                yaxis: { title: '零件质量（克）' },
+                showlegend: true
+            };
+            
+            Plotly.newPlot(container, [trace1, trace2, trace3], layout, {responsive: true});
+        }
+
+        // 题目3：箱线图更新函数
+        function updateChart3() {
+            const container = document.getElementById('chart3');
+            if (!container) return;
+            
+            const aMin = parseFloat(document.getElementById('chart3-a-min').value);
+            const aMax = parseFloat(document.getElementById('chart3-a-max').value);
+            const bMin = parseFloat(document.getElementById('chart3-b-min').value);
+            const bMax = parseFloat(document.getElementById('chart3-b-max').value);
+            const cMin = parseFloat(document.getElementById('chart3-c-min').value);
+            const cMax = parseFloat(document.getElementById('chart3-c-max').value);
+            
+            // 生成新的模拟数据
+            const data_a = Array.from({length: 50}, () => Math.random() * (aMax - aMin) + aMin);
+            const data_b = Array.from({length: 50}, () => Math.random() * (bMax - bMin) + bMin);
+            const data_c = Array.from({length: 48}, () => Math.random() * (cMax - cMin) + cMin).concat([cMax + 10, cMin - 10]);
+            
+            const trace1 = {
+                y: data_a,
+                name: '工艺A',
+                type: 'box',
+                marker: { color: 'rgb(173, 216, 230)' }
+            };
+            
+            const trace2 = {
+                y: data_b,
+                name: '工艺B',
+                type: 'box',
+                marker: { color: 'rgb(144, 238, 144)' }
+            };
+            
+            const trace3 = {
+                y: data_c,
+                name: '工艺C',
+                type: 'box',
+                marker: { color: 'rgb(240, 128, 128)' }
+            };
+            
+            const layout = {
+                yaxis: { title: '零件质量（克）' },
+                showlegend: true
+            };
+            
+            Plotly.react(container, [trace1, trace2, trace3], layout);
+        }
+
+        // 题目4：折线图更新函数
+        let chart4;
+        function initChart4() {
+            const ctx = document.getElementById('chart4');
+            if (!ctx) return;
+            
+            chart4 = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['2019', '2020', '2021', '2022', '2023', '2024', '2025'],
+                    datasets: [
+                        {
+                            label: '营收',
+                            data: [2.5, 3.1, 4.0, 5.2, 6.5, 7.8, 8.5],
+                            borderColor: 'blue',
+                            tension: 0.3
+                        },
+                        {
+                            label: '利润',
+                            data: [0.5, 0.7, 0.9, 1.3, 1.8, 2.2, 2.5],
+                            borderColor: 'red',
+                            tension: 0.3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: '年份'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: '金额（亿元）'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateChart4() {
+            if (!chart4) return;
+            
+            // 更新标签
+            const newLabels = [
+                document.getElementById('chart4-label1').value,
+                document.getElementById('chart4-label2').value,
+                document.getElementById('chart4-label3').value,
+                document.getElementById('chart4-label4').value,
+                document.getElementById('chart4-label5').value,
+                document.getElementById('chart4-label6').value,
+                document.getElementById('chart4-label7').value
+            ];
+            
+            // 更新数据
+            const revenueData = [
+                parseFloat(document.getElementById('chart4-revenue-2019').value),
+                parseFloat(document.getElementById('chart4-revenue-2020').value),
+                parseFloat(document.getElementById('chart4-revenue-2021').value),
+                parseFloat(document.getElementById('chart4-revenue-2022').value),
+                parseFloat(document.getElementById('chart4-revenue-2023').value),
+                parseFloat(document.getElementById('chart4-revenue-2024').value),
+                parseFloat(document.getElementById('chart4-revenue-2025').value)
+            ];
+            
+            const profitData = [
+                parseFloat(document.getElementById('chart4-profit-2019').value),
+                parseFloat(document.getElementById('chart4-profit-2020').value),
+                parseFloat(document.getElementById('chart4-profit-2021').value),
+                parseFloat(document.getElementById('chart4-profit-2022').value),
+                parseFloat(document.getElementById('chart4-profit-2023').value),
+                parseFloat(document.getElementById('chart4-profit-2024').value),
+                parseFloat(document.getElementById('chart4-profit-2025').value)
+            ];
+            
+            // 更新坐标轴标题和数据集标题
+            const xAxisTitle = document.getElementById('chart4-xaxis').value;
+            const yAxisTitle = document.getElementById('chart4-yaxis').value;
+            const dataset1Title = document.getElementById('chart4-dataset1').value;
+            const dataset2Title = document.getElementById('chart4-dataset2').value;
+            
+            chart4.data.labels = newLabels;
+            chart4.data.datasets[0].data = revenueData;
+            chart4.data.datasets[1].data = profitData;
+            chart4.data.datasets[0].label = dataset1Title;
+            chart4.data.datasets[1].label = dataset2Title;
+            chart4.options.scales.x.title.text = xAxisTitle;
+            chart4.options.scales.y.title.text = yAxisTitle;
+            
+            chart4.update();
+        }
+
+        // 题目5：直方图更新函数
+        let chart5;
+        function initChart5() {
+            const ctx = document.getElementById('chart5');
+            if (!ctx) return;
+            
+            chart5 = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['40-46', '46-52', '52-58', '58-64', '64-70', '70-76', '76-82', '82-88', '88-94', '94-100'],
+                    datasets: [{
+                        label: '频数',
+                        data: [3, 5, 8, 12, 10, 7, 4, 2, 1, 0],
+                        backgroundColor: 'rgba(173, 216, 230, 0.7)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: '分数区间'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: '频数'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateChart5() {
+            if (!chart5) return;
+            
+            // 更新标签
+            const newLabels = [
+                document.getElementById('chart5-label1').value,
+                document.getElementById('chart5-label2').value,
+                document.getElementById('chart5-label3').value,
+                document.getElementById('chart5-label4').value,
+                document.getElementById('chart5-label5').value,
+                document.getElementById('chart5-label6').value,
+                document.getElementById('chart5-label7').value,
+                document.getElementById('chart5-label8').value,
+                document.getElementById('chart5-label9').value,
+                document.getElementById('chart5-label10').value
+            ];
+            
+            // 更新数据
+            const newData = [
+                parseInt(document.getElementById('chart5-data1').value),
+                parseInt(document.getElementById('chart5-data2').value),
+                parseInt(document.getElementById('chart5-data3').value),
+                parseInt(document.getElementById('chart5-data4').value),
+                parseInt(document.getElementById('chart5-data5').value),
+                parseInt(document.getElementById('chart5-data6').value),
+                parseInt(document.getElementById('chart5-data7').value),
+                parseInt(document.getElementById('chart5-data8').value),
+                parseInt(document.getElementById('chart5-data9').value),
+                parseInt(document.getElementById('chart5-data10').value)
+            ];
+            
+            // 更新坐标轴标题和数据集标题
+            const xAxisTitle = document.getElementById('chart5-xaxis').value;
+            const yAxisTitle = document.getElementById('chart5-yaxis').value;
+            const datasetTitle = document.getElementById('chart5-dataset').value;
+            
+            chart5.data.labels = newLabels;
+            chart5.data.datasets[0].data = newData;
+            chart5.data.datasets[0].label = datasetTitle;
+            chart5.options.scales.x.title.text = xAxisTitle;
+            chart5.options.scales.y.title.text = yAxisTitle;
+            
+            chart5.update();
+        }
+
+        // 题目6：饼图/环形图切换功能
+        let chart6;
+        let chart6Type = 'pie'; // 默认显示饼图
+        
+        function initChart6() {
+            const ctx = document.getElementById('chart6');
+            if (!ctx) return;
+            
+            chart6 = new Chart(ctx, {
+                type: chart6Type,
+                data: {
+                    labels: ['后端开发', '前端开发', 'UI/UX设计', '软件测试'],
+                    datasets: [{
+                        data: [15, 12, 5, 8],
+                        backgroundColor: ['#ff9999', '#66b3ff', '#99ff99', '#ffcc99'],
+                        borderWidth: chart6Type === 'doughnut' ? 2 : 0,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        function toggleChart6(type) {
+            if (!chart6) return;
+            
+            // 更新按钮状态
+            const buttons = document.querySelectorAll('.chart-toggle-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // 销毁当前图表
+            chart6.destroy();
+            
+            // 更新图表类型
+            chart6Type = type;
+            
+            // 获取当前标签和数据
+            const newLabels = [
+                document.getElementById('chart6-label1').value,
+                document.getElementById('chart6-label2').value,
+                document.getElementById('chart6-label3').value,
+                document.getElementById('chart6-label4').value
+            ];
+            
+            const newData = [
+                parseInt(document.getElementById('chart6-data1').value),
+                parseInt(document.getElementById('chart6-data2').value),
+                parseInt(document.getElementById('chart6-data3').value),
+                parseInt(document.getElementById('chart6-data4').value)
+            ];
+            
+            // 重新创建图表
+            const ctx = document.getElementById('chart6');
+            chart6 = new Chart(ctx, {
+                type: chart6Type,
+                data: {
+                    labels: newLabels,
+                    datasets: [{
+                        data: newData,
+                        backgroundColor: ['#ff9999', '#66b3ff', '#99ff99', '#ffcc99'],
+                        borderWidth: chart6Type === 'doughnut' ? 2 : 0,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    },
+                    cutout: chart6Type === 'doughnut' ? '50%' : 0
+                }
+            });
+        }
+
+        function updateChart6() {
+            if (!chart6) return;
+            
+            // 更新标签
+            const newLabels = [
+                document.getElementById('chart6-label1').value,
+                document.getElementById('chart6-label2').value,
+                document.getElementById('chart6-label3').value,
+                document.getElementById('chart6-label4').value
+            ];
+            
+            // 更新数据
+            const newData = [
+                parseInt(document.getElementById('chart6-data1').value),
+                parseInt(document.getElementById('chart6-data2').value),
+                parseInt(document.getElementById('chart6-data3').value),
+                parseInt(document.getElementById('chart6-data4').value)
+            ];
+            
+            chart6.data.labels = newLabels;
+            chart6.data.datasets[0].data = newData;
+            chart6.update();
+        }
+
+        // 题目7：气泡图更新函数
+        let chart7;
+        function initChart7() {
+            const ctx = document.getElementById('chart7');
+            if (!ctx) return;
+            
+            chart7 = new Chart(ctx, {
+                type: 'bubble',
+                data: {
+                    datasets: [
+                        {
+                            label: 'A市',
+                            data: [{x: 300, y: 150, r: 13}],
+                            backgroundColor: 'rgba(255, 99, 132, 0.7)'
+                        },
+                        {
+                            label: 'B市',
+                            data: [{x: 1500, y: 700, r: 18}],
+                            backgroundColor: 'rgba(54, 162, 235, 0.7)'
+                        },
+                        {
+                            label: 'C市',
+                            data: [{x: 800, y: 350, r: 16}],
+                            backgroundColor: 'rgba(255, 206, 86, 0.7)'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+
+        function updateChart7() {
+            if (!chart7) return;
+            
+            const aX = parseInt(document.getElementById('chart7-a-x').value);
+            const aY = parseInt(document.getElementById('chart7-a-y').value);
+            const aR = parseInt(document.getElementById('chart7-a-r').value);
+            
+            const bX = parseInt(document.getElementById('chart7-b-x').value);
+            const bY = parseInt(document.getElementById('chart7-b-y').value);
+            const bR = parseInt(document.getElementById('chart7-b-r').value);
+            
+            const cX = parseInt(document.getElementById('chart7-c-x').value);
+            const cY = parseInt(document.getElementById('chart7-c-y').value);
+            const cR = parseInt(document.getElementById('chart7-c-r').value);
+            
+            chart7.data.datasets[0].data = [{x: aX, y: aY, r: aR}];
+            chart7.data.datasets[1].data = [{x: bX, y: bY, r: bR}];
+            chart7.data.datasets[2].data = [{x: cX, y: cY, r: cR}];
+            chart7.update();
+        }
+
+        // 题目8：堆积面积图更新函数
+        let chart8;
+        function initChart8() {
+            const ctx = document.getElementById('chart8');
+            if (!ctx) return;
+            
+            chart8 = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['1月', '2月', '3月', '4月', '5月', '6月'],
+                    datasets: [
+                        {
+                            label: '自然流量',
+                            data: [10, 12, 15, 18, 20, 22],
+                            backgroundColor: 'rgba(102, 194, 165, 0.6)',
+                            fill: true
+                        },
+                        {
+                            label: '广告投放',
+                            data: [5, 8, 10, 9, 11, 13],
+                            backgroundColor: 'rgba(252, 141, 98, 0.6)',
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+
+        function updateChart8() {
+            if (!chart8) return;
+            
+            const naturalData = [
+                parseInt(document.getElementById('chart8-natural-1').value),
+                parseInt(document.getElementById('chart8-natural-2').value),
+                parseInt(document.getElementById('chart8-natural-3').value),
+                parseInt(document.getElementById('chart8-natural-4').value),
+                parseInt(document.getElementById('chart8-natural-5').value),
+                parseInt(document.getElementById('chart8-natural-6').value)
+            ];
+            
+            const adData = [
+                parseInt(document.getElementById('chart8-ad-1').value),
+                parseInt(document.getElementById('chart8-ad-2').value),
+                parseInt(document.getElementById('chart8-ad-3').value),
+                parseInt(document.getElementById('chart8-ad-4').value),
+                parseInt(document.getElementById('chart8-ad-5').value),
+                parseInt(document.getElementById('chart8-ad-6').value)
+            ];
+            
+            chart8.data.datasets[0].data = naturalData;
+            chart8.data.datasets[1].data = adData;
+            chart8.update();
+        }
+
+        // 题目9：误差棒图初始化函数
+        function initChart9() {
+            const container = document.getElementById('chart9');
+            if (!container) return;
+            
+            // 数据准备
+            const timePoints = ['1小时', '2小时', '4小时', '8小时', '12小时'];
+            const meanIntensity = [15, 22, 35, 48, 55];
+            const stdDev = [1.5, 2.0, 3.5, 4.0, 5.5];
+            
+            const trace = {
+                x: timePoints,
+                y: meanIntensity,
+                error_y: {
+                    type: 'data',
+                    array: stdDev,
+                    visible: true,
+                    color: 'rgba(231, 138, 195, 0.8)',
+                    thickness: 2,
+                    width: 8
+                },
+                type: 'scatter',
+                mode: 'markers+lines',
+                marker: {
+                    color: 'rgba(231, 138, 195, 1)',
+                    size: 8
+                },
+                line: {
+                    color: 'rgba(231, 138, 195, 0.7)',
+                    width: 2
+                },
+                name: '平均反应强度'
+            };
+            
+            const layout = {
+                title: '实验在不同处理时间下的平均反应强度',
+                xaxis: { title: '处理时间（小时）' },
+                yaxis: { title: '平均反应强度' },
+                showlegend: true
+            };
+            
+            Plotly.newPlot(container, [trace], layout, {responsive: true});
+        }
+
+        // 题目9：误差棒图更新函数
+        function updateChart9() {
+            const container = document.getElementById('chart9');
+            if (!container) return;
+            
+            const meanData = [
+                parseFloat(document.getElementById('chart9-mean-1').value),
+                parseFloat(document.getElementById('chart9-mean-2').value),
+                parseFloat(document.getElementById('chart9-mean-3').value),
+                parseFloat(document.getElementById('chart9-mean-4').value),
+                parseFloat(document.getElementById('chart9-mean-5').value)
+            ];
+            
+            const errorData = [
+                parseFloat(document.getElementById('chart9-error-1').value),
+                parseFloat(document.getElementById('chart9-error-2').value),
+                parseFloat(document.getElementById('chart9-error-3').value),
+                parseFloat(document.getElementById('chart9-error-4').value),
+                parseFloat(document.getElementById('chart9-error-5').value)
+            ];
+            
+            const trace = {
+                x: ['1小时', '2小时', '4小时', '8小时', '12小时'],
+                y: meanData,
+                error_y: {
+                    type: 'data',
+                    array: errorData,
+                    visible: true,
+                    color: 'rgba(231, 138, 195, 0.8)',
+                    thickness: 2,
+                    width: 8
+                },
+                type: 'scatter',
+                mode: 'markers+lines',
+                marker: {
+                    color: 'rgba(231, 138, 195, 1)',
+                    size: 8
+                },
+                line: {
+                    color: 'rgba(231, 138, 195, 0.7)',
+                    width: 2
+                },
+                name: '平均反应强度'
+            };
+            
+            const layout = {
+                title: '实验在不同处理时间下的平均反应强度',
+                xaxis: { title: '处理时间（小时）' },
+                yaxis: { title: '平均反应强度' },
+                showlegend: true
+            };
+            
+            Plotly.react(container, [trace], layout);
+        }
+
+        // 题目10：雷达图更新函数
+        let chart10;
+        function initChart10() {
+            const ctx = document.getElementById('chart10');
+            if (!ctx) return;
+            
+            chart10 = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['性能', '设计', '续航', '价格', '服务'],
+                    datasets: [
+                        {
+                            label: '产品A',
+                            data: [9.0, 7.5, 8.0, 6.5, 8.0],
+                            backgroundColor: 'rgba(31, 119, 180, 0.2)'
+                        },
+                        {
+                            label: '产品B',
+                            data: [7.0, 8.5, 7.5, 8.0, 9.0],
+                            backgroundColor: 'rgba(255, 127, 14, 0.2)'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+
+        function updateChart10() {
+            if (!chart10) return;
+            
+            const productAData = [
+                parseFloat(document.getElementById('chart10-a-1').value),
+                parseFloat(document.getElementById('chart10-a-2').value),
+                parseFloat(document.getElementById('chart10-a-3').value),
+                parseFloat(document.getElementById('chart10-a-4').value),
+                parseFloat(document.getElementById('chart10-a-5').value)
+            ];
+            
+            const productBData = [
+                parseFloat(document.getElementById('chart10-b-1').value),
+                parseFloat(document.getElementById('chart10-b-2').value),
+                parseFloat(document.getElementById('chart10-b-3').value),
+                parseFloat(document.getElementById('chart10-b-4').value),
+                parseFloat(document.getElementById('chart10-b-5').value)
+            ];
+            
+            chart10.data.datasets[0].data = productAData;
+            chart10.data.datasets[1].data = productBData;
+            chart10.update();
+        }
+
+
+
+
+
+
+
+        // 辅助函数
+        function scrollToTop() {
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+        }
+    </script>
+</body>
+</html>
